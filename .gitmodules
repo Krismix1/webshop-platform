@@ -1,0 +1,19 @@
+[submodule "webshop-client"]
+	path = webshop-client
+	url = https://github.com/Krismix1/webshop-client.git
+	branch = dev
+[submodule "webshop-discovery-server"]
+	path = webshop-discovery-server
+	url = https://github.com/Krismix1/webshop-discovery.git
+[submodule "webshop-authentication"]
+	path = webshop-authentication
+	url = https://github.com/Krismix1/webshop-authentication.git
+[submodule "webshop-gateway-server"]
+	path = webshop-gateway-server
+	url = https://github.com/Krismix1/webshop-gateway.git
+[submodule "webshop-config-server"]
+	path = webshop-config-server
+	url = https://github.com/Krismix1/webshop-config.git
+[submodule "webshop-management"]
+	path = webshop-management
+	url = https://github.com/Krismix1/webshop-management.git
