@@ -1,9 +1,9 @@
-version: '1'
+version: '3'
 services:
-  eurekaserver:
+  discoveryserver:
     image:  epharas/webshop-discovery-server:1.0.0
     ports:
-      - "8082:8082"
+      - "8082:8080"
     depends_on:
       - configserver
   configserver:
@@ -11,9 +11,8 @@ services:
     ports:
       - "8081:8081"
     environment:
-      EUREKASERVER_PORT: 8082
-      EUREKASERVER_URI: "http://eurekaserver:8082/eureka/"
-      ENCRYPT_KEY:       "IMSYMMETRIC"
+      EUREKA_PORT: 8082
+      EUREKA_URI: "http://discoveryserver:8082/eureka/"
   gatewayserver:
     image: epharas/webshop-gateway-server:1.0.0
     ports:
@@ -24,22 +23,23 @@ services:
       CONFIGSERVER_PORT: 8081
       EUREKASERVER_PORT: 8082
       CONFIGSERVER_URI: "http://configserver:8081"
-      EUREKASERVER_URI: "http://eurekaserver:8082/eureka/"
+      EUREKASERVER_URI: "http://discoveryserver:8082/eureka/"
     depends_on:
       - configserver
-      - eurekaserver
+      - discoveryserver
   database:
     image: mysql:5.6
     ports:
       - "3306:3306"
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=p0stgr@s
-      - POSTGRES_DB=eagle_eye_local
+#      - MYSQL_ROOT_PASSWORD=rootpass
+      - MYSQL_DATABASE=webshop
+      - MYSQL_USER=tomcat
+      - MYSQL_PASSWORD=tomcatpass
   clientservice:
     image: epharas/webshop-client:1.0.0
     ports:
-      - "8082:8082"
+      - "8082:8080"
     environment:
       PROFILE: "default"
       SERVER_PORT: "8082"
@@ -49,12 +49,12 @@ services:
       EUREKASERVER_PORT: 8082
       AUTHSERVER_PORT:   8084
       CONFIGSERVER_URI: "http://configserver:8081"
-      EUREKASERVER_URI: "http://eurekaserver:8082/eureka/"
+      EUREKASERVER_URI: "http://discoveryserver:8082/eureka/"
       AUTHSERVER_URI:   "http://authenticationservice:8084/auth/user"
       ENCRYPT_KEY:       "IMSYMMETRIC"
     depends_on:
       - configserver
-      - eurekaserver
+      - discoveryserver
       - gatewayserver
       - database
       - authenticationservice
@@ -71,12 +71,12 @@ services:
       EUREKASERVER_PORT: 8082
       AUTHSERVER_PORT:   8084
       CONFIGSERVER_URI: "http://configserver:8081"
-      EUREKASERVER_URI: "http://eurekaserver:8082/eureka/"
+      EUREKASERVER_URI: "http://discoveryserver:8082/eureka/"
       AUTHSERVER_URI:   "http://authenticationservice:8084/auth/user"
       ENCRYPT_KEY:       "IMSYMMETRIC"
     depends_on:
       - configserver
-      - eurekaserver
+      - discoveryserver
       - gatewayserver
       - database
       - authenticationservice
@@ -91,9 +91,9 @@ services:
         CONFIGSERVER_PORT: 8081
         EUREKASERVER_PORT: 8082
         CONFIGSERVER_URI: "http://configserver:8081"
-        EUREKASERVER_URI: "http://eurekaserver:8082/eureka/"
+        EUREKASERVER_URI: "http://discoveryserver:8082/eureka/"
         ENCRYPT_KEY:       "IMSYMMETRIC"
       depends_on:
         - configserver
-        - eurekaserver
+        - discoveryserver
         - gatewayserver
