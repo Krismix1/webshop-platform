@@ -1,98 +1,114 @@
 version: '3'
 services:
+# Discovery server
   discoveryserver:
     image:  epharas/webshop-discovery-server:1.0.0
     ports:
       - "8082:8080"
     depends_on:
       - configserver
+    restart: on-failure
+# Config server
   configserver:
     image: epharas/webshop-config-server:1.0.0
     ports:
-      - "8081:8081"
-    environment:
-      EUREKA_PORT: 8082
-      EUREKA_URI: "http://discoveryserver:8082/eureka/"
+      - "8081:8080"
+#      EUREKASERVER_PORT: 8082
+#      EUREKASERVER_URI: "http://discoveryserver:8080/eureka/"
+    restart: on-failure
+# Gateway server
   gatewayserver:
     image: epharas/webshop-gateway-server:1.0.0
-    ports:
-      - "8080:8080"
-    environment:
-      PROFILE: "default"
-      SERVER_PORT: "8080"
-      CONFIGSERVER_PORT: 8081
-      EUREKASERVER_PORT: 8082
-      CONFIGSERVER_URI: "http://configserver:8081"
-      EUREKASERVER_URI: "http://discoveryserver:8082/eureka/"
+#    ports:
+#      - "8080:8080"
+#    environment:
+#      PROFILE: "default"
+#      SERVER_PORT: "8080"
+#      CONFIGSERVER_PORT: 8081
+#      EUREKASERVER_PORT: 8082
+#      CONFIGSERVER_URI: "http://configserver:8080"
+#      EUREKASERVER_URI: "http://discoveryserver:8080/eureka/"
+    restart: on-failure
     depends_on:
       - configserver
       - discoveryserver
+# Database
   database:
     image: mysql:5.6
-    ports:
-      - "3306:3306"
+#    ports:
+#      - "3306:3306"
     environment:
-#      - MYSQL_ROOT_PASSWORD=rootpass
-      - MYSQL_DATABASE=webshop
-      - MYSQL_USER=tomcat
-      - MYSQL_PASSWORD=tomcatpass
+#      MYSQL_ROOT_PASSWORD: rootpass
+      MYSQL_USER: tomcat
+      MYSQL_PASSWORD: tomcatpass
+      MYSQL_DATABASE: webshop
+# Client service
   clientservice:
     image: epharas/webshop-client:1.0.0
-    ports:
-      - "8082:8080"
+#    ports:
+#      - "8082:8080"
     environment:
-      PROFILE: "default"
-      SERVER_PORT: "8082"
-      ES_PORT:           9200
-      DATABASE_PORT:     3306
-      CONFIGSERVER_PORT: 8081
-      EUREKASERVER_PORT: 8082
-      AUTHSERVER_PORT:   8084
-      CONFIGSERVER_URI: "http://configserver:8081"
-      EUREKASERVER_URI: "http://discoveryserver:8082/eureka/"
-      AUTHSERVER_URI:   "http://authenticationservice:8084/auth/user"
-      ENCRYPT_KEY:       "IMSYMMETRIC"
+#      PROFILE: "default"
+#      SERVER_PORT: "8082"
+#      ES_PORT:           9200
+#      DATABASE_PORT:     3306
+#      CONFIGSERVER_PORT: 8081
+#      EUREKASERVER_PORT: 8082
+#      AUTHSERVER_PORT:   8084
+#      CONFIGSERVER_URI: "http://configserver:8080"
+#      EUREKASERVER_URI: "http://discoveryserver:8080/eureka/"
+#      AUTHSERVER_URI:   "http://authenticationservice:8080/auth/user"
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.jdbc.Driver
+      SPRING_JPA_HIBERNATE_DDL_AUTO: create
+      SPRING_DATASOURCE_URL: jdbc:mysql://database:3306/webshop
+      SPRING_DATASOURCE_USERNAME: tomcat
+      SPRING_DATASOURCE_PASSWORD: tomcatpass
     depends_on:
       - configserver
       - discoveryserver
       - gatewayserver
       - database
-      - authenticationservice
-      - management
+#      - authenticationservice
+#      - management
+# Management service
   management:
     image: epharas/webshop-management:1.0.0
-    ports:
-      - "8085:8085"
+#    ports:
+#      - "8085:8085"
     environment:
-      PROFILE: "default"
-      SERVER_PORT: "8085"
-      DATABASE_PORT:     3306
-      CONFIGSERVER_PORT: 8081
-      EUREKASERVER_PORT: 8082
-      AUTHSERVER_PORT:   8084
-      CONFIGSERVER_URI: "http://configserver:8081"
-      EUREKASERVER_URI: "http://discoveryserver:8082/eureka/"
-      AUTHSERVER_URI:   "http://authenticationservice:8084/auth/user"
-      ENCRYPT_KEY:       "IMSYMMETRIC"
+#      PROFILE: "default"
+#      SERVER_PORT: "8085"
+#      DATABASE_PORT:     3306
+#      CONFIGSERVER_PORT: 8081
+#      EUREKASERVER_PORT: 8082
+#      AUTHSERVER_PORT:   8084
+#      CONFIGSERVER_URI: "http://configserver:8080"
+#      EUREKASERVER_URI: "http://discoveryserver:8080/eureka/"
+#      AUTHSERVER_URI:   "http://authenticationservice:8080/auth/user"
+      SPRING_DATASOURCE_DRIVER_CLASS_NAME: com.mysql.jdbc.Driver
+      SPRING_JPA_HIBERNATE_DDL_AUTO: create
+      SPRING_DATASOURCE_URL: jdbc:mysql://database:3306/webshop
+      SPRING_DATASOURCE_USERNAME: tomcat
+      SPRING_DATASOURCE_PASSWORD: tomcatpass
     depends_on:
       - configserver
       - discoveryserver
       - gatewayserver
       - database
-      - authenticationservice
+#      - authenticationservice
+# Auth service
   authenticationservice:
       image: epharas/webshop-authentication:1.0.0
-      ports:
-        - "8084:8084"
-      environment:
-        PROFILE: "default"
-        SERVER_PORT: "8084"
-        DATABASE_PORT:     3306
-        CONFIGSERVER_PORT: 8081
-        EUREKASERVER_PORT: 8082
-        CONFIGSERVER_URI: "http://configserver:8081"
-        EUREKASERVER_URI: "http://discoveryserver:8082/eureka/"
-        ENCRYPT_KEY:       "IMSYMMETRIC"
+#      ports:
+#        - "8084:8084"
+#      environment:
+#        PROFILE: "default"
+#        SERVER_PORT: "8084"
+#        DATABASE_PORT:     3306
+#        CONFIGSERVER_PORT: 8081
+#        EUREKASERVER_PORT: 8082
+#        CONFIGSERVER_URI: "http://configserver:8080"
+#        EUREKASERVER_URI: "http://discoveryserver:8080/eureka/"
       depends_on:
         - configserver
         - discoveryserver
